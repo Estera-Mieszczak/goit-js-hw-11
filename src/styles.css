@@ -1,0 +1,12 @@
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 36px;
+}
+.photo-card {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  /* flex-basis: calc((100% - 24px) / 5); */
+}
