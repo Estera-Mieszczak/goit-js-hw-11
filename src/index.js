@@ -9,18 +9,20 @@ loadMoreBtn.hidden = true;
 
 // Controls the number of items in the group
 let searchedPhoto;
+let preparedSearchedPhoto;
 let page = 1;
 const perPage = 40;
 
-form.addEventListener("submit", async (event) => {
+form.addEventListener("submit", (event) => {
     try {
         event.preventDefault();
         const form = event.target;
         searchedPhoto = form.elements.searchQuery.value;
+        preparedSearchedPhoto = searchedPhoto.split(' ').join('+')
         
         photoList.innerHTML = "";
         
-        await fetchPhoto().then(data => renderPhoto(data));
+        fetchPhoto().then(data => renderPhoto(data))
                 
         // Increase the group number
         page += 1;
@@ -50,23 +52,22 @@ form.addEventListener("submit", async (event) => {
 loadMoreBtn.addEventListener("click", () => {
 
     fetchPhoto()
-    .then(data => {
-        if (data.hits.length < 40) {
-            loadMoreBtn.hidden = true;
-            Notify.failure("We're sorry, but you've reached the end of search results.");
-        }
-    })
-    .then(data => renderPhoto(data));
+        .then(data => loadMorePhotos(data))
+        .then(data => renderPhoto(data))
+        .catch((error) => console.log(error));
     page += 1;
 
 })
 
-// function loadMore(total) {
-//     if (total.hits.lenght < 40) {
-//         loadMoreBtn.hidden = true;
-//         Notify.failure("We're sorry, but you've reached the end of search results.");
-//     }
-// }
+function loadMorePhotos() {
+    if (page * 40 >= totalHits) {
+        loadMoreBtn.hidden = true;
+        Notify.failure("We're sorry, but you've reached the end of search results.");
+    }
+    else {
+        loadMoreBtn.hidden = false;
+    }
+}
 
 const fetchPhoto = async() => {
   
@@ -80,12 +81,12 @@ const fetchPhoto = async() => {
 }
 
 function renderPhoto(photoData) {
-    // console.log(photoData);
-    if (photoData.hits.length === 0) {
+    console.log(photoData);
+    if (photoData.totalHits <= 0) {
         Notify.failure("Sorry, there are no images matching your search query. Please try again.");
     }
-    const totalHits = photoData.totalHits;
-    console.log(totalHits);
+    // const totalHits = photoData.totalHits;
+    // console.log(totalHits);
     const markup = photoData.hits
         .map(({ webformatURL, likes, views, comments, downloads }) => {
             return `<div class="photo-card">
