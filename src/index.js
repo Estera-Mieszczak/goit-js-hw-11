@@ -21,6 +21,7 @@ form.addEventListener("submit", (event) => {
         preparedSearchedPhoto = searchedPhoto.split(' ').join('+')
         
         photoList.innerHTML = "";
+        page = 1;
         
         fetchPhoto().then(data => renderPhoto(data))
                 
@@ -29,45 +30,18 @@ form.addEventListener("submit", (event) => {
         loadMoreBtn.hidden = false;
         form.reset();
 
-    // Replace button text after first request
-    // if (page > 1) {
-    //   fetchPostsBtn.textContent = "Fetch more posts";
-    // }
     }   
     catch (error) {
     console.log(error);
   }
 });
 
-// loadMoreBtn.addEventListener("click", () => {
-//     if (res.hits.length < 40) {
-//         loadMoreBtn.hidden = true;
-//         Notify.failure("We're sorry, but you've reached the end of search results.");
-//     }
-//     fetchPhoto().then(data => renderPhoto(data));
-//     page += 1;
-
-// })
-
 loadMoreBtn.addEventListener("click", () => {
 
-    fetchPhoto()
-        .then(data => loadMorePhotos(data))
-        .then(data => renderPhoto(data))
-        .catch((error) => console.log(error));
+    fetchPhoto().then(data => renderPhoto(data))
     page += 1;
 
 })
-
-function loadMorePhotos() {
-    if (page * 40 >= totalHits) {
-        loadMoreBtn.hidden = true;
-        Notify.failure("We're sorry, but you've reached the end of search results.");
-    }
-    else {
-        loadMoreBtn.hidden = false;
-    }
-}
 
 const fetchPhoto = async() => {
   
@@ -81,12 +55,13 @@ const fetchPhoto = async() => {
 }
 
 function renderPhoto(photoData) {
-    console.log(photoData);
-    if (photoData.totalHits <= 0) {
-        Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+    const hits = photoData.hits;
+    
+    if (hits.length === 0) {
+        loadMoreBtn.hidden = true;
+        Notify.failure("We're sorry, but you've reached the end of search results.");
     }
-    // const totalHits = photoData.totalHits;
-    // console.log(totalHits);
+
     const markup = photoData.hits
         .map(({ webformatURL, likes, views, comments, downloads }) => {
             return `<div class="photo-card">
