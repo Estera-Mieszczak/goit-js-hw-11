@@ -37,13 +37,36 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-loadMoreBtn.addEventListener("click", () => {
-   
-    loadMorePhoto();
-    fetchPhoto().then(data => renderPhoto(data));
+// loadMoreBtn.addEventListener("click", () => {
+//     if (res.hits.length < 40) {
+//         loadMoreBtn.hidden = true;
+//         Notify.failure("We're sorry, but you've reached the end of search results.");
+//     }
+//     fetchPhoto().then(data => renderPhoto(data));
+//     page += 1;
 
-    
+// })
+
+loadMoreBtn.addEventListener("click", () => {
+
+    fetchPhoto()
+    .then(data => {
+        if (data.hits.length < 40) {
+            loadMoreBtn.hidden = true;
+            Notify.failure("We're sorry, but you've reached the end of search results.");
+        }
+    })
+    .then(data => renderPhoto(data));
+    page += 1;
+
 })
+
+// function loadMore(total) {
+//     if (total.hits.lenght < 40) {
+//         loadMoreBtn.hidden = true;
+//         Notify.failure("We're sorry, but you've reached the end of search results.");
+//     }
+// }
 
 const fetchPhoto = async() => {
   
@@ -56,30 +79,18 @@ const fetchPhoto = async() => {
     return photo;   
 }
 
-function loadMorePhoto(hits) {
-    const total = Number(hits.totalHits)
-    if (page * perPage >= total) {
-        loadMoreBtn.hidden = true;
-        Notify.failure("We're sorry, but you've reached the end of search results.");
-    }
-    loadMoreBtn.hidden = false;
-}
-
 function renderPhoto(photoData) {
-    console.log(photoData);
+    // console.log(photoData);
     if (photoData.hits.length === 0) {
         Notify.failure("Sorry, there are no images matching your search query. Please try again.");
     }
-    // else if (page * perPage > photoData.totalHits) {
-    //     Notify.failure("We're sorry, but you've reached the end of search results.");
-    //     loadMoreBtn.hidden = true;
-    // }
-    {
-        const markup = photoData.hits
-            .map(({ webformatURL, likes, views, comments, downloads }) => {
-                return `<div class="photo-card">
-                <img src="${webformatURL}" alt="" loading="lazy" />
-                 <div class="info">
+    const totalHits = photoData.totalHits;
+    console.log(totalHits);
+    const markup = photoData.hits
+        .map(({ webformatURL, likes, views, comments, downloads }) => {
+            return `<div class="photo-card">
+            <img src="${webformatURL}" alt="" loading="lazy" />
+                <div class="info">
                     <p class="info-item">
                          <b>Likes:</b> ${likes}
                     </p>
@@ -94,10 +105,8 @@ function renderPhoto(photoData) {
                     </p>
                 </div>
                 </div>`;
-            })
-            .join("");
+        })
+        .join("");
         // photoList.innerHTML = markup;
-        photoList.insertAdjacentHTML("beforeend", markup);
+    photoList.insertAdjacentHTML("beforeend", markup);
     }
-    // Notify.failure("We're sorry, but you've reached the end of search results.");
-} 
